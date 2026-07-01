@@ -1,0 +1,10 @@
+
+\vspace{1mm}
+\noindent\textbf{Bias-Variance Tradeoff}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Decomposition:} Expected Test Error = $\text{Bias}^2 + \text{Variance} + \text{Irreducible Error } (\sigma^2)$.
+    \item \textbf{Bias:} Error from erroneous assumptions. $\text{Bias} = E[\hat{f}(x)] - f(x)$. \textbf{High Bias} means the model is too simple and ignores patterns (\textit{Underfitting}).
+    \item \textbf{Variance:} Error from sensitivity to training set fluctuations. $\text{Variance} = E[(\hat{f}(x) - E[\hat{f}(x)])^2]$. \textbf{High Variance} means the model fits noise perfectly (\textit{Overfitting}).
+    \item \textbf{Irreducible Error:} Inherent data noise ($\epsilon$ in $y = f(x) + \epsilon$) that cannot be reduced by any model. Represents the absolute minimum possible error.
+    \item \textbf{The Tradeoff:} As complexity increases (e.g., higher polynomial degree, deeper trees), Bias decreases but Variance increases. Regularization increases Bias to lower Variance.
+\end{itemize}

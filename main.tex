@@ -1,0 +1,441 @@
+\documentclass[8pt,landscape,a4paper]{extarticle}
+\usepackage[margin=0.2in]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{1.2ex}{0.5ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.3ex}
+
+\begin{document}
+% % \fontsize{font_size}{line_spacing}\selectfont
+% \fontsize{7pt}{7pt}\selectfont
+\begin{multicols*}{4} % 4 columns for maximum cramming
+
+\noindent\textbf{CS2109S}
+\small
+{\footnotesize
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{PEAS:} \textbf{P}erformance measure (defines "goodness"), \textbf{E}nvironment (what agent can/cannot do), \textbf{A}ctuators (outputs), \textbf{S}ensors (inputs).
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Task Environment Properties}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Fully observable (vs Partially):} Sensors give complete state access at all times. No internal state needed to keep track of the world.
+    \item \textbf{Single-agent (vs Multi-agent):} Agent operating by itself in an environment.
+    \item \textbf{Deterministic (vs Stochastic):} Next state is completely determined by current state + action. (\textit{Strategic}: Deterministic except for actions of other predictable agents).
+    \item \textbf{Episodic (vs Sequential):} Atomic episodes (perceive then act). Action choice depends \textit{only} on the current episode. Sequential decisions affect the future.
+    \item \textbf{Static (vs Dynamic):} Environment is unchanged while agent deliberates. (\textit{Semi-dynamic}: Env is static, but performance score changes with time).
+    \item \textbf{Discrete (vs Continuous):} Limited, clearly defined number of percepts and actions.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Agent Structures \& Learning}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Simple Reflex:} Actions based \textit{only} on current percepts via condition-action rules.
+    \item \textbf{Goal-based:} Considers future states to achieve a specific goal.
+    \item \textbf{Utility-based:} Chooses actions to maximize expected utility.
+    \item \textbf{Learning Agent:} Improves over time. Has \textit{Performance element}, \textit{Critic}, \textit{Learning element}, \textit{Problem generator}.
+    \item \textbf{Explore vs Exploit:} Learn more about the world vs. maximize gain based on current knowledge.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Problem Solving \& Search Formulation}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{States \& Initial State:} Configurations of the problem domain and the starting configuration.
+    \item \textbf{Goal Test:} Function or collection of states to check if a state is the goal.
+    \item \textbf{Actions \& Branching Factor ($b$):} Set of valid actions per state. $b \ge |actions(state)|$.
+    \item \textbf{Transition Model:} Function yielding next state: $new\_state = transition(state, action)$.
+    \item \textbf{Action Cost Function:} Maps a state and action to a numerical cost value.
+\end{itemize}
+
+\noindent\textbf{Uninformed Search Algorithms}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Breadth-First (BFS):} FIFO queue. Complete \& optimal (if step cost=1). Time/Space: $O(b^d)$ (Exponential).
+    \item \textbf{Depth-First (DFS):} LIFO stack. Incomplete (loops/infinite paths) \& sub-optimal. Time: $O(b^m)$, Space: $O(bm)$ (Polynomial space).
+    \item \textbf{Uniform-Cost (UCS):} Expands lowest $g(n)$. Priority Queue. Complete \& optimal for any step cost $\ge \epsilon > 0$. Time/Space: Exponential.
+    \item \textbf{Depth-Limited (DLS):} DFS with max depth $l$. Avoids infinite paths but incomplete if goal is deeper than $l$.
+    \item \textbf{Iterative Deepening (IDS):} Repeated DLS with limit $l = 0, 1, 2...$ Combines DFS space efficiency $O(bd)$ with BFS completeness/optimality.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Informed Search \& Heuristics}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Best-First Search:} Node expansion guided by an evaluation function $f(n)$.
+    \item \textbf{$A^*$ Search:} $f(n) = g(n) + h(n)$. ($g=$ exact cost so far, $h=$ estimated cost to goal). Complete \& Optimal. Space is Exponential (keeps all generated nodes in memory).
+    \item \textbf{Admissible Heuristic:} $h(n) \le h^*(n)$. Never overestimates true cost to goal. Guarantees optimality for \textit{Tree Search} (No Visited Memory).
+    \item \textbf{Consistent Heuristic:} $h(n) \le c(n, a, n') + h(n')$. Triangle inequality. Guarantees $f(n)$ is non-decreasing along paths. Guarantees optimality for \textit{Graph Search} (Visited Memory). (Consistent $\implies$ Admissible).
+    \item \textbf{Dominance:} If $h_2(n) \ge h_1(n)$ for all $n$ (and both are admissible), $h_2$ dominates $h_1$. $h_2$ is strictly better and will expand fewer (or equal) nodes.
+    \item \textbf{Creating Heuristics:} Formulated by relaxing problem constraints to compute the exact optimal cost of a simplified version of the problem.
+\end{itemize}
+
+\noindent\textbf{Local Search}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Formulation:} States (candidate solutions), Initial State, Successor function (generates modified neighbors). No actions, path costs, or transition models. Focus is entirely on the final state, not the path taken.
+    \item \textbf{Hill-Climbing (Greedy):} Traverse state space by moving to the best locally-reachable state. Continually move to the highest-eval successor, using eval func. Terminate and return current state if the best neighbor's evaluation is $\le$ the current state.
+    \item \textbf{State Landscape:} 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Global Max}: Overall highest point/opt solution. 
+        \item \textit{Local Max}: higher than immediate neighbors. 
+        \item \textit{Shoulder}: flat region - difficult to progress past.
+    \end{itemize}
+\end{itemize}
+
+
+\vspace{1mm}
+\noindent\textbf{Adversarial Search \& Minimax}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Formulation:} 2-player zero-sum games. Requires Terminal States (win/loss/draw) and a Utility Function (score of state from perspective of Player A). 
+    \item \textbf{Minimax Algorithm:} Computes optimal strategy assuming opponent plays optimally. Player A maximizes utility, Player B minimizes it. Time: $O(b^m)$, Space: Polynomial. Complete (if finite tree) \& Optimal against optimal opponent.
+    \item \textbf{Cutoffs \& Evaluation:} For large/real-world games, stop search early based on a budget (\texttt{is\_cutoff}). Use a Heuristic Eval to estimate utility of non-terminal states. Must be bounded: $min\_utility \le heuristic(s) \le max\_utility$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Alpha-Beta Pruning}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Variables:} $\alpha =$ highest value for MAX so far. $\beta =$ lowest value for MIN so far. Initialized at root to $\alpha = -\infty, \beta = \infty$
+    \item \textbf{Pruning Condition:} Prune whenever $\alpha \geq \beta$.
+    \item \textbf{Move Ordering:} Good move ordering increases pruning effectiveness. Perfect ordering reduces time complexity from $O(b^m)$ to $O(b^{m/2})$.
+\end{itemize}
+
+\noindent\textbf{Supervised Learning}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Types:} Classification (discrete target $Y$) vs. Regression (continuous target $Y$).
+    \item \textbf{Generalization:} The ability of the model to perform well on unseen, test data.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Classification Metrics}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Accuracy:} $TP + TN/ Total$.
+    \item \textbf{Precision:} $TP / (TP + FP)$.
+    \item \textbf{Recall:} $TP / (TP + FN)$. 
+    \item \textbf{F1 Score:} $2 \times \frac{Precision \times Recall}{Precision + Recall}$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Decision Trees \& Entropy}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Structure:} Internal node = attribute test, branch = test outcome, leaf = class label.
+    \item \textbf{Entropy ($H$):} Measure of uncertainty/impurity. $H(S) = - \sum p_i \log_2 p_i$. (Pure set = 0, Uniform set = maximum entropy).
+    \item \textbf{Information Gain ($IG$):} Expected reduction in entropy after splitting on attribute $A$. $IG(S, A) = H(S) - H(S|A)$. 
+    \item \textbf{ID3 Algorithm:} Top-down, greedy recursive partitioning. At each node, select the attribute $A$ that maximizes Information Gain.
+    \item \textbf{Pre-pruning:} Stop growing tree early (eg. \textbf{reach max depth}, \textbf{minimum samples per leaf})
+\end{itemize}
+}
+
+\noindent\textbf{Linear Regression \& Loss}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Hypothesis:} $h_w(x) = \sum_{j=0}^d w_j x_j = w^T x$.
+    \item \textbf{Mean Squared Error (MSE):} $J_{MSE}(w) = \frac{1}{2n} \sum_{i=1}^n (h_w(x^{(i)}) - y^{(i)})^2$. (The $\frac{1}{2n}$ is used so the derivative cleanly cancels the exponent 2). Measures average squared error.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Optimization Algorithms}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Normal Equation:} Closed-form exact solution. Set derivative $\nabla_w J(w) = 0$. Solved as $w = (X^T X)^{-1} X^T Y$. But computationally expensive, possible non-invertible and does not work on non-linear models.
+    \item \textbf{Partial Derivative:} 
+    
+    $\frac{\partial J_{MSE}(w)}{\partial w_j} = \frac{1}{n} \sum_{i=1}^n (h_w(x^{(i)}) - y^{(i)}) x_j^{(i)}$.
+    \item \textbf{Gradient Descent (GD):} Iterative algorithm. Updates weights in the opposite direction of the gradient: $w_j \leftarrow w_j - \alpha \frac{\partial J_{MSE}(w)}{\partial w_j}$.
+    \item \textbf{Convexity:} For convex functions, any local minimum is a global minimum. \textit{Strictly} convex functions have at most one unique global minimum.
+    \item \textbf{MSE Convexity:} MSE loss for linear regression is convex w.r.t. parameters. If training features are \textit{linearly independent} (no feature is a linear combination of others), MSE is \textit{strictly} convex.
+    \item \textbf{GD Convergence:} For linear regression + MSE, Gradient Descent is guaranteed to converge to a global minimum (given an appropriate learning rate). This minimum is unique if features are linearly independent.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Feature Scaling}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Min-Max Scaling:} $x_i' = \frac{x_i - \min(x_i)}{\max(x_i) - \min(x_i)}$. Scales features to a fixed range, typically $[0,1]$ or $[-1,1]$.
+    \item \textbf{Standardization:} $x_i' = \frac{x_i - \mu_i}{\sigma_i}$. Transforms features to have a mean of $0$ and a standard deviation of $1$.
+    \item \textbf{Alternative to Scaling:} Use a different, specific learning rate $\gamma_j$ for each individual weight.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{GD Variants \& Feature Transforms}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Batch GD:} Uses entire dataset to compute gradient per step.
+    \item \textbf{Stochastic GD (SGD):} Uses a single data point per step. Noisy but fast.
+    \item \textbf{Mini-batch GD:} Uses a subset (batch size $B$) per step. Balances speed and stability.
+    \item \textbf{Feature Transformation:} Applying non-linear transformations (e.g., $x^2$, $\log(x)$) allows fitting complex curves. The model remains a \textit{linear} regression because it is still linear with respect to the weights $w$, preserving MSE convexity.
+\end{itemize}
+
+\noindent\textbf{Logistic Regression \& Loss}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Logistic Model:} Used for binary classification. Applies the Sigmoid function ($\sigma$): $h_w(x) = \sigma(w^T x) = \frac{1}{1 + e^{-w^Tx}}$. Outputs the probability that the instance belongs to class 1.
+    \item \textbf{Derivative:} $\sigma'(x) = \sigma(x)(1 - \sigma(x))$
+    \item \textbf{Binary Cross Entropy (BCE) Loss:} $BCE(y, \hat{y}) = -y \log(\hat{y}) - (1-y)\log(1-\hat{y})$. Total loss $J(w)$ is the average BCE across all $N$ samples. Penalizes confident wrong predictions heavily.
+    \item \textbf{Non-linear Boundaries:} If data is not linearly separable, apply feature transformations (e.g., polynomial features) before applying the logistic model.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Logistic Regression GD Math}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Total BCE Loss:} 
+
+    $J_{BCE}(w) = \frac{1}{n} \sum_{i=1}^n BCE(y^{(i)}, h_w(x^{(i)}))$.
+    \item \textbf{Partial Derivative:} 
+    
+    $\frac{\partial J_{BCE}(w)}{\partial w_j} = \frac{1}{n} \sum_{i=1}^n (h_w(x^{(i)}) - y^{(i)}) x_j^{(i)}$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Multi-Class \& ML Fundamentals}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{One-vs-Rest (OvR):} For $N$ classes, train $N$ independent classifiers (e.g., Class A vs Not A). For a new input, pick the class whose classifier outputs the highest probability.
+    \item \textbf{One-vs-One (OvO):} Train $N(N-1)/2$ classifiers (one for every possible pair of classes). For a new input, predict the class that receives the most votes.
+    \item \textbf{Multi-Label Classification Techniques}
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textbf{Binary Relevance:} Train 1 independent binary classifier per label (OvR). Ignores label correlations and constraints (e.g., mutual exclusivity). Extensible to non-binary.
+        \item \textbf{Classifier Chain:} Like Binary Relevance, but feeds previous predictions as features into subsequent classifiers. Captures label dependencies but is highly sensitive to the chain order.
+        \item \textbf{Label Powerset:} Transforms to multi-class by treating each unique label combination as a single class. Preserves correlations but risks exponential class explosion and data sparsity.
+    \end{itemize}
+    \item \textbf{Advanced Topics:} \textit{Generalization} is performance on unseen data. \textit{Model Complexity} is the expressiveness of the model. High complexity causes \textit{Overfitting} (fitting noise). Low complexity causes \textit{Underfitting} (failing to fit training data). \textit{Hyperparameter Tuning:} Optimizing the configuration of the model distinct from the learned weights $w$.
+\end{itemize}
+
+\noindent\textbf{Regularization \& Overfitting}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Overfitting:} Associated with large weights.
+    \item \textbf{Regularization:} $J_{reg}(w) = J(w) + \lambda R(w)$. Trade-off fit and simple model.
+    \item \textbf{$L_p$-Norms:} For $p \ge 1$, $\|w\|_p = (\sum_{j=0}^d |w_j|^p)^{1/p}$. Measures the "size" of a vector.
+    \item \textbf{$L_2$ (Ridge):} $R(w) = ||w||_2 = \sqrt{\sum_{j=0}^d w_j^2}$.
+    \item \textbf{$L_1$ (Lasso):} $R(w) = ||w||_1 = \sum_{j=0}^d |w_j|$.
+\end{itemize}
+
+\noindent\textbf{Ridge Regression ($L_2$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Closed-form Sol:} $w = (X^T X + \lambda I)^{-1} X^T Y$. (Invertible for $\lambda > 0$)
+    \item \textbf{GD Update:} $\frac{\partial J_{L_2}^{MSE}(w)}{\partial w_j} = \frac{\partial J_{MSE}(w)}{\partial w_j} + \lambda w_j$.
+    \item \textbf{Note:} Adding $\lambda I$ makes the matrix $(X^T X + \lambda I)$ always invertible for $\lambda > 0$, solving potential singularity issues in the normal equation.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Regularization Theorems}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{$L_2$ Weight Shrinkage:} For $\lambda > 0$, the $L_2$-norm of the regularized weight vector is strictly smaller than the non-regularized weight vector (assuming a non-zero solution).
+    \item \textbf{$L_1$ Penalty \& Sparsity:} A feature is included if its weight $\neq 0$. $L_1$ applies a constant penalty $\lambda$ (in terms of gradient) to non-zero weights. 
+    \item \textbf{How $L_1$ induces sparsity:} For a feature to be included, its contribution to reducing MSE loss must exactly equal the penalty $\lambda$ (the optimal gradient must be 0, so MSE gradient compensates the $\lambda$ subgradient). If the feature's contribution is $< \lambda$, the optimization sets its weight to exactly 0 to avoid the penalty.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Dual Models \& Kernels}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Feature Map ($\phi(x)$):} Maps to higher dims to solve non-linearity but causes param explosion (e.g., $d=100$, deg=6 $\rightarrow$ 1.6B w's).
+    \item \textbf{Representer Theorem:} Optimal $w$ is a linear combo of training data: $w = \sum_{j=1}^n \alpha_j x^{(j)}$.
+    \item \textbf{Inner Product:} $\langle u, v \rangle = u \cdot v = u^Tv$. Measure of similarity.
+    \item \textbf{Dual Formulation:} $h_\alpha(x) = \sum_{j=1}^n \alpha_j \langle x^{(j)}, x \rangle$. Reduces params from $d$ to $n$ (num training points).
+    \item \textbf{Kernel ($k_\phi$):}  $k_\phi(u,v) = \langle \phi(u), \phi(v) \rangle$.
+    \item \textbf{Kernel Trick:} Compute inner product without explicit $\phi(x)$ expansion. $h_\alpha^\phi(x) = \sum \alpha_j k_\phi(x^{(j)}, x)$.
+    \item \textbf{Polynomial Kernel:} $k_{pk}(u,v) = (u^T v)^k$.
+    \item \textbf{Gaussian (RBF):} $k_{RBF}(u,v) = \exp(-\frac{||u-v||^2}{2s^2})$. Feature map maps to infinite-dimensional space.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Hyperplanes \& SVM}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Hyperplane:} Decision boundary defined by normal vector $w$. Contains all points $x$ where $w^T x + b = 0$.
+    \item \textbf{Distance to Hyperplane:} $\frac{|w^T x + b|}{||w||}$.
+    \item \textbf{Primal Model:} $h_w(x) = \text{sign}(w^T x)$. The sign ($+1, -1, 0$) determines which side of the boundary point $x$ is on. \textbf{Kernel trick applies here too}.
+    \item \textbf{SVM Objective:} Finds the "optimal" hyperplane by maximizing the distance between the decision boundary and the closest training datapoints.
+\end{itemize}
+
+\newpage
+\noindent\textbf{Neural Networks \& MLPs}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Learned Features:} Neural Networks jointly learn the feature transformation $\phi(x)$ and the predictor $h$, eliminating manual feature engineering.
+    \item \textbf{Common Activations:} 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textbf{Sigmoid:} $\frac{1}{1+e^{-z}}$. \textbf{Tanh:} $\frac{e^z-e^{-z}}{e^z+e^{-z}}$. 
+        \item \textbf{ReLU:} $\max(0,z)$. \textbf{Leaky ReLU:} $\max(az, z)$.
+    \end{itemize}
+    \item \textbf{Perceptron Limitations:} A single-layer linear classifier. Mathematically incapable of solving non-linearly separable problems (like the XOR function).
+\end{itemize}
+
+    \vspace{1mm}
+\noindent\textbf{FCNN Architecture \& Math}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Graph Formulation:} Feed-forward networks are Directed Acyclic Graphs (DAGs) $G=(V,E)$ where nodes are parameterized functions (neurons) and edges are data flow.
+    \item \textbf{Dimensions:} \textit{Depth} = sequential layers (excluding input layer). \textit{Width} = parallel neurons per layer. \textit{Deep Learning} = $>1$ hidden layer.
+    \item \textbf{FC Layer Math:} Fully-Connected (FC) layers connect all inputs to all neurons. Evaluated simultaneously via matrix multiplication: $\hat{y} = g(W^T x + b)$. If there are $d$ inputs and $k$ neurons, $W$ has dimensions $d \times k$.
+    \item \textbf{Universal Approximation:} A 1-hidden-layer FCNN with sufficient width and a non-linear activation can approx any continuous function in a bounded region.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Output Layers \& Loss Functions}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Regression (Single):} Predicts $y \in \mathbb{R}$. 1 neuron. Identity activation ($\hat{y} = z$). Loss: MSE.
+    \item \textbf{Regression (Multi):} Predicts $m$ values. $m$ neurons. Identity activation. Loss: $J_{MSE} = \frac{1}{2n}\sum_{i=1}^n \sum_{j=1}^m (\hat{y}_j^{(i)} - y_j^{(i)})^2$.
+    \item \textbf{Binary Classification:} Predicts $y \in \{0,1\}$. 1 neuron. Sigmoid activation ($\hat{y} = \sigma(z)$). Loss: BCE.
+    \item \textbf{Multi-Class Classification ($K$ Classes):} Predicts 1 out of $K$ mutually exclusive classes. 
+    \item \textbf{Architecture:} $K$ neurons. Target $y$ must be \textbf{One-Hot Encoded} (e.g., $[0, 1, 0]$).
+    \item \textbf{Softmax Activation:} $\hat{y}_i = \frac{e^{z_i}}{\sum_{j=1}^K e^{z_j}}$. Converts raw scores into a valid probability distribution.
+    \item \textbf{Categorical Cross-Entropy:} \\ $CCE(y_i, \hat{y}_i) = -\sum_{j=1}^K y_j^{(i)}\log(\hat{y}_j^{(i)})$
+    \item \textbf{CCE Loss:}  $J_{CCE} = -\frac{1}{n} \sum_{i=1}^n CCE(y_i, \hat{y}_i)$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Backpropagation \& Gradients}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Core Idea:} Uses the chain rule and dynamic programming (recurrence) to efficiently compute the gradient of the loss w.r.t every weight in the network.
+    \item \textbf{Notation:} $z^{[l]} = (W^{[l]})^T a^{[l-1]}$ (Pre-activation). $a^{[l]} = g^{[l]}(z^{[l]})$ (Post-activation). $a^{[0]} = x$ (Input).
+    \item \textbf{The Error Term ($\delta$):} $\delta^{[l]} = \frac{\partial J}{\partial z^{[l]}}$. Measures how much the loss changes if the pre-activation changes.
+    \item \textbf{Backward Pass (Output Layer $L$):} $\delta^{[L]} = \frac{\partial J}{\partial a^{[L]}} \odot (g^{[L]})'(z^{[L]})$.
+    \item \textbf{Backward Pass (Hidden Layer $l$):} $\delta^{[l]} = (W^{[l+1]} \delta^{[l+1]}) \odot (g^{[l]})'(z^{[l]})$.
+    \item \textbf{Weight Gradient:} Once $\delta^{[l]}$ is found, the gradient for the weights at that layer is simply: $\frac{\partial J}{\partial W^{[l]}} = a^{[l-1]} (\delta^{[l]})^T$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Gradient Flow Issues}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Vanishing Gradients:} Occurs in very deep NN using Sigmoid/Tanh. Small Derivatives, chain rule makes gradient 0. Stops updating.
+    \item \textbf{Solution to Vanishing:} Use ReLU. Derivative = $1$, gradients can flow backward without decaying.
+    \item \textbf{Dying ReLU Problem:} If neuron's weights makes $z < 0$, ReLU output = $0$, gradient = $0$. The neuron is "dead" and weight stops updating.
+    \item \textbf{Solution to Dying ReLU:} Use Leaky ReLU. The small slope $\alpha$ (e.g., $0.01$) ensures a non-$0$ gradient. (If $\alpha = 1$, the network turns into a linear model).
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Convolution Neural Networks}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Conv Operation ($*$):} Kernel ($K$) slides across 2D input computing element-wise product sums. Preserves spatial relations.
+    \item \textbf{Stride ($S$):} The step size. $S>1$ downsamples image.
+    \item \textbf{Padding ($P$):} Adding extra pixels (usually $0$s) around the input border to preserve spatial dimensions and prevent edges from being ignored.
+    \item \textbf{Output Dimension:} For an input of size $W_{in}$, the output width/height is: $W_{out} = \lfloor \frac{W_{in} + 2P - K}{S} \rfloor + 1$.
+    \item \textbf{Multi-Channel Inputs (RGB):} If the input has $C_{in}$ channels, $K$ must also have exactly $C_{in}$ channels. We calc the 2D dot product for \textit{each} channel and sums all $C_{in}$ results into a \textbf{single} number. 
+    \item \textbf{Multiple Kernels:} Each distinct Kernel detects a different feature (e.g., vertical/horizontal edge). If you use $K_{num}$ different kernels, your output will be stacked into $K_{num}$ feature maps (output channels). 
+    \item \noindent\textbf{CNN Dimensions \& Parameters}
+        \begin{itemize}[leftmargin=*, nosep]
+            \item \textbf{Output Depth Rule:} 1 Kernel = 1 2D Feature Map. $M$ Kernels = $M$ Outputs. 
+            \item \textbf{Shape Transition:} Input ($H_{in} \times W_{in} \times C_{in}$) $*$ $M$ Kernels ($K \times K \times C_{in}$) $\rightarrow$ Output ($H_{out} \times W_{out} \times M$).
+            Note: All channels of $K$ = 1 kernel.
+            \item \textbf{Parameter Counting:} Total learnable weights for a layer = $((K \times K \times C_{in}) + 1) \times M$. Bias is \textbf{channel-wise}, not pixel-wise (1 scalar per output feature map). 
+        \end{itemize}
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Pooling \& CNN Architecture}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Conv Layer Math:} Pre-activation $Z_k = X * W_k + b_k$ (1 bias scalar broadcasted per output channel $k$). Post-activation $A_k = g(Z_k)$ applied element by element (typically ReLU).
+    \item \textbf{CNN Pros:} \textit{Parameter Sharing} (same kernel weights used for the whole image), \textit{Local Connectivity} (Only the $K \times K$ is related to each other).
+    \item \textbf{Pooling Layer:} Downsamples spatial dimensions ($H \times W$) to prevent computational overload. 
+    \item \textbf{Pooling Rules:} \textbf{Channel Independence.} Pooling operates on each feature map completely separately. If input is $H \times W \times C$, output is $H' \times W' \times C$. \textbf{Depth never changes during pooling.}
+    \item \textbf{Full CNN Pipeline:} \texttt{Conv+ReLU} (Local Feature Extractor) $\rightarrow$ \texttt{Pool} (Compress) $\rightarrow$ \texttt{Flatten} (Convert to 1D vector) $\rightarrow$ \texttt{FC Layers} (Global Predictor).
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Receptive Field (RF)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item Specific region of the \textit{original input image} that influences a single neuron in a deeper layer. Larger RF = more global context.
+    \item \textbf{Recursive Formula:} Let $r_i$ = RF, $k_i$ = kernel size, $s_i$ = stride, $j_i$ = cumulative stride multiplier, $i$ is layer.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textbf{Base Case:} $r_0 = 1$, $j_0 = 1$.
+        \item \textbf{Step 1:} $j_i = j_{i-1} \times s_i$.
+        \item \textbf{Step 2:} $r_i = r_{i-1} + (k_i - 1) \times j_{i-1}$.
+    \end{itemize}
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Transfer Learning}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Concept:} Reusing a CNN pretrained on a massive dataset. Early layers learn generic features (edges). Late layers learn task-specific features (shapes).
+    \item \textbf{Method A: Feature Extraction:} Freeze all pretrained layers. Replace only the final FC predict layer. 
+    \textit{Use when:} New dataset is \textbf{small} and task is \textbf{similar}.
+    \item \textbf{Method B: Fine-Tuning:} Replace final layer and unfreeze some/all earlier layers to update their weights with a very low learning rate.
+    \textit{Use when:} New dataset is \textbf{large} and task is \textbf{different}
+\end{itemize}
+
+\noindent\textbf{Embeddings}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{One-hot Encoding:} High-dimensional and sparse.
+    \item \textbf{Word Embedding Layer:} A learnable matrix of size $V \times E$ (where V = Vocabulary Size, $E$ is a chosen dense dimension) that maps discrete word indices into low-dimensional, dense continuous vectors.
+\end{itemize}
+
+\noindent\textbf{Recurrent Neural Networks (RNNs)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Core Idea:} Processes sequences step-by-step, maintaining a \textbf{Hidden State ($h_t$)} acting as memory of the sequence processed so far. Handles variable-length inputs natively.
+    \item \textbf{RNN Layer Math:} Generates hidden state $h_t$ using the current input $x_t$ and the previous state $h_{t-1}$. 
+    $h_t = g(W_{xh}^T x_t + W_{hh}^T h_{t-1} + b)$
+    \item \textbf{Start state:} $h_0$ is \textbf{not} always $\vec{0}$ (e.g., initialized via CNN feature vector in Image Captioning, or Encoder's final state in Seq2Seq).
+    \item \textbf{Parameter Sharing:} The exact same matrices ($W_{xh}$, $W_{hh}$, $b$) are reused at \textit{every} time step. 
+    \item \textbf{FC Predictor:} To make a prediction at step $t$, pass $h_t$ through an FC layer: eg. $\hat{y}_t = \sigma(W_{hy}^T h_t)$.
+    \item \textbf{Bidirectional RNN:} Contains two independent RNN layers. The Forward layer reads $1 \rightarrow T$ (extracts past context). The Backward layer reads $T \rightarrow 1$ (extracts future context). At each step, the two hidden states are concatenated: $h_t = [h^{(forward)}_t ; h^{(backward)}_t]$.
+    \item \textbf{Stacked RNNs:} The $h_t$ from Layer 1 becomes the $x_t$ input for Layer 2. $h^{[l, t]} = f^{[l]}(h^{[l-1, t]}, h^{[l, t-1]})$.
+    \item \textbf{Unrolling:} Unrolling does \textit{not} create new layers. The \textbf{exact same} weight matrices are reused at every single time step.
+\end{itemize}
+
+
+\vspace{1mm}
+\noindent\textbf{RNN Architectures}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Many-to-Many (Aligned):} Generates output at every time step. $T_{in} = T_{out}$. (e.g., Word Tagging).
+    \item \textbf{Many-to-One:} Reads entire sequence, extracts context into final hidden state $h_T$, and makes a single prediction. (e.g., Sentiment Analysis).
+    \item \textbf{One-to-Many:} Generates sequence from single input. \textbf{Context Method:} Input initializes $h_0$, sequence starts with \texttt{<SOS>}. (e.g., Image Captioning, where CNN feature vector $\rightarrow h_0$). \textbf{First Token Method:} $h_0 = \vec{0}$, input is $x_1$ (e.g., Prompt completion).
+    \item \textbf{Many-to-Many (Encoder-Decoder):} $T_{in} \neq T_{out}$. \textbf{Encoder RNN} reads sequence to create a final context vector. \textbf{Decoder RNN} uses context as its initial $h_0$ to generate a new sequence until \texttt{<EOS>} is reached. (e.g., Translation, Question Answering).
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Sequence Generation Concepts}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Autoregressive Generation:} During testing, the predicted output $z_{t-1}$ is fed back as the input $x_t$ for the next step.
+    \item \textbf{Teacher Forcing:} During training, feed the \textit{ground-truth} target from $t-1$ as input $x_t$, ignoring the model's (likely wrong) prediction. Prevents error accumulation early in training. Drawback: "Train-Test Mismatch".
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Attention Mechanism}
+\begin{itemize}[leftmargin=*, nosep]
+    \item RNNs suffer from: old info is lost in the hidden state and cannot be parallelized.
+    \item \textbf{Self-Attention Intuition:} For every token, generate a \textbf{Query}, a \textbf{Key}, and a \textbf{Value}. 
+    \item \textbf{Vector Packing:} The entire input sequence of length $T$ is packed into a single matrix $X \in \mathbb{R}^{d \times T}$.
+    \item \textbf{The Linear Projections:} $Q = W_q X$, $K = W_k X$, $V = W_v X$. (Note: $Q$ and $K$ must have the exact same dimension $d_k$ to compute the dot product).
+    \item \textbf{The Master Equation:} 
+    $C = V \text{softmax}_{col} \left( \frac{K^T Q}{\sqrt{d_k}} \right)$
+    \item \textbf{Positional Encoding (PE):} For position $t$, dimension index $k$, sequence dimension $d$, and constant $L$: 
+    \textbf{Even $k$:} $PE_k[t] = \sin(t / L^{k/d})$. \textbf{Odd $k$:} $PE_k[t] = \cos(t / L^{(k-1)/d})$. Then, do element-wise addition to input embeddings: $X_t' = X_t + PE_t$.
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Attention ANN Architectures}
+\begin{itemize}[leftmargin=*, nosep]
+   \item \textbf{Residual Addition:} Output is $X_{new} = X' + C$ (element-wise addition). These new vectors are then processed \textit{independently} token-by-token by a shared Feed-Forward NN.
+    \item \textbf{Many-to-Many (Aligned):} $T_{in} = T_{out}$. Standard Self-Attention Layer $\rightarrow$ (Each token feeds into) Feed Forward NN $\rightarrow$ Output per token.
+    \item \textbf{Many-to-One:} Averages all output vectors from the Feed Forward NN into a single vector, then makes 1 prediction.
+    \item \textbf{One-to-Many (Autoregressive):} Uses \textbf{Masked Self-Attention} during Teacher Forcing. To prevent the model from "cheating" by looking at future tokens during training, an upper-triangular matrix of $-\infty$ is added to the raw attention scores before the softmax: $\text{softmax}( \frac{K^T Q}{\sqrt{d_k}} + M)$. This forces $\alpha_{ij} = 0$ if $i > j$.
+    \item \textbf{Many-to-Many (Encoder-Decoder):} $T_{in} \neq T_{out}$. 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Encoder:} Processes input into $E$ using Self-Attention.
+        \item \textit{Decoder:} Uses \textit{Masked} Self-Attention on the target sequence to get $D$.
+        \item \textit{Cross-Attention:} Decoder asks for context from Encoder. \textbf{Queries ($Q$)} come from Decoder $D$. \textbf{Keys ($K$)} and \textbf{Values ($V$)} come from Encoder $E$.
+        \item \textbf{Note:} Every Attention Layer (Self, Masked, Cross) has \textbf{independent} $W_q, W_k, W_v$ matrices. They do not share.
+    \end{itemize}
+    \item \textbf{The Transformer (Lite):} A deep ANN. Encoder = Stack of (Self-Attention $\rightarrow$ FFNN). Decoder = Stack of (Masked Self-Attention $\rightarrow$ Cross-Attention $\rightarrow$ FFNN).
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Self-Supervised Learning (SSL)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Paradigm Shift:} Leveraging massive, unlabeled datasets by auto-generating pseudo-labels directly from the data itself via a \textbf{Pretext Task}.
+    \item \textbf{Pretext Task Examples:} 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Rotation Prediction:} Rotate images by the 4 directions. Model predicts the angle. Learns shapes, contours, and orientations.
+        \item \textit{Image Inpainting:} Mask patches of an image; model predicts missing pixels.
+        \item \textit{Next-Token Prediction (GPT):} Predict the next word in a sentence. Learns grammar and factual knowledge.
+    \end{itemize}
+    \item \textbf{Downstream Utilization:} The trained Feature Extractor ($f(x)$) is then used for a specific target task with a new task-specific predictor.
+    \begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Direct Application:} Use $f(x)$ as-is. 
+    \item \textbf{Fine-Tuning:} Train on labeled dataset for btr acc.
+    \end{itemize}
+\end{itemize}
+
+\vspace{1mm}
+\noindent\textbf{Contrastive Learning}
+\begin{itemize}[leftmargin=*, nosep]
+    \item {\footnotesize  \textbf{Cosine Similarity:} $\text{sim}(x, y) = \frac{x \cdot y}{||x|| ||y||}$.  Range: $[-1, 1]$.}
+    \item \textbf{Pair Formation (Supervised):} \textit{Positive Pair:} $(x_i, x_{i+})$ belong to the same class. \textit{Negative Pair:} $(x_i, x_{i-})$ belong to different classes.
+    \item \textbf{Pair Formation (Self-Supervised):} \textit{Positive Pair:} Two different random augmentations (crop, color shift) of the \textbf{same} image. \textit{Negative Pair:} Two completely different images.
+    \item \textbf{Contrastive Loss Formula:} Let $S(x, y) = e^{\frac{\text{sim}(x,y) }{\tau}}$. (where $\tau$ is a hyperparameter).
+    $$L(x_i) = -\log \left( \frac{S(x_i, x_{i+})}{S(x_i, x_{i+}) + \sum_{k \in Neg} S(x_i, x_k)} \right)$$
+\end{itemize}
+
+\end{multicols*}
+\end{document}
